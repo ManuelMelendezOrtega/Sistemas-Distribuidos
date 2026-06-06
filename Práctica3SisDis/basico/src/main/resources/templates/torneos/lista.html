@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>PokeSistema - Torneos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/zephyr/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map { height: 400px; width: 100%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="/buscador"><i class="bi bi-vinyl-fill"></i> PokeSistema</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/buscador">Buscador API</a></li>
+                    <li class="nav-item" sec:authorize="hasRole('ADMIN')"><a class="nav-link" href="/users">Usuarios</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/torneos">Torneos</a></li>
+                </ul>
+                <form th:action="@{/logout}" method="post" class="d-flex">
+                    <button class="btn btn-outline-light btn-sm" type="submit">Cerrar Sesión</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-7">
+                <div class="card shadow border-0 mb-4">
+                    <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                        <h3 class="text-secondary mb-0"><i class="bi bi-trophy-fill text-warning"></i> Torneos Pokémon</h3>
+                        <a sec:authorize="hasRole('ADMIN')" href="/torneos/nuevo" class="btn btn-primary rounded-pill"><i class="bi bi-plus-lg"></i> Nuevo Torneo</a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">Torneo</th>
+                                        <th>Fecha</th>
+                                        <th class="text-end pe-4">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="t : ${torneos}" th:id="'torneo-' + ${t.id}">
+                                        <td class="ps-4">
+                                            <a href="#" class="text-decoration-none fw-bold text-dark visualizador-mapa"
+                                               th:data-lat="${t.latitud}" th:data-lng="${t.longitud}" th:data-nombre="${t.nombre}">
+                                                <i class="bi bi-geo-alt-fill text-danger"></i> <span th:text="${t.nombre}"></span>
+                                            </a>
+                                            <br>
+                                            <small class="text-muted" th:text="${t.descripcion}"></small>
+                                        </td>
+                                        <td><span class="badge bg-info" th:text="${t.fecha}"></span></td>
+                                        <td class="text-end pe-4">
+                                            
+                                            <form th:action="@{/torneos/inscribirse}" method="post" class="d-inline-block me-2">
+                                                <input type="hidden" name="torneoId" th:value="${t.id}">
+                                                <div class="input-group input-group-sm">
+                                                    <select name="equipoPokemon" class="form-select" required>
+                                                        <option value="" disabled selected>Equipo...</option>
+                                                        <option value="Fuego">Tipo Fuego</option>
+                                                        <option value="Agua">Tipo Agua</option>
+                                                        <option value="Planta">Tipo Planta</option>
+                                                        <option value="Eléctrico">Tipo Eléctrico</option>
+                                                    </select>
+                                                    <button type="submit" class="btn btn-success">¡Apuntarme!</button>
+                                                </div>
+                                            </form>
+
+                                            <div class="d-inline-block mt-2" sec:authorize="hasRole('ADMIN')">
+                                                <a th:href="@{/torneos/editar/{id}(id=${t.id})}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                                                <a th:href="@{/torneos/eliminar/{id}(id=${t.id})}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar torneo?');"><i class="bi bi-trash"></i></a>
+                                            </div>
+
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(torneos)}">
+                                        <td colspan="3" class="text-center py-4 text-muted">No hay torneos registrados. Añade el primero.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="card shadow border-0 position-sticky" style="top: 20px;">
+                    <div class="card-body">
+                        <h5 class="text-secondary mb-3"><i class="bi bi-map"></i> Ubicación del Torneo</h5>
+                        <div id="map"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([40.416775, -3.703790], 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        var currentMarker = null;
+
+        document.querySelectorAll('.visualizador-mapa').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                var lat = parseFloat(this.getAttribute('data-lat'));
+                var lng = parseFloat(this.getAttribute('data-lng'));
+                var nombre = this.getAttribute('data-nombre');
+
+                if (currentMarker) map.removeLayer(currentMarker);
+                
+                map.setView([lat, lng], 14);
+                currentMarker = L.marker([lat, lng]).addTo(map)
+                    .bindPopup('<b>' + nombre + '</b><br>Sede del Torneo.')
+                    .openPopup();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>PokeSistema - Formulario Torneo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/zephyr/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow border-0">
+                    <div class="card-header bg-white pt-4 px-4 border-0">
+                        <h4 th:text="${torneo.id == null ? 'Crear Nuevo Torneo' : 'Editar Torneo'}" class="text-secondary">Formulario</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <form th:action="@{/torneos/guardar}" th:object="${torneo}" method="post">
+                            <input type="hidden" th:field="*{id}" />
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Nombre del Torneo</label>
+                                <input type="text" class="form-control" th:field="*{nombre}" placeholder="Ej: Torneo Kanto Soria" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Descripción</label>
+                                <textarea class="form-control" th:field="*{descripcion}" rows="2" placeholder="Detalles del torneo..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Fecha del Evento</label>
+                                <input type="date" class="form-control" th:field="*{fecha}" required>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Latitud</label>
+                                    <input type="number" step="any" class="form-control" th:field="*{latitud}" placeholder="Ej: 41.763" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Longitud</label>
+                                    <input type="number" step="any" class="form-control" th:field="*{longitud}" placeholder="Ej: -2.464" required>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 d-flex gap-2">
+                                <button type="submit" class="btn btn-primary px-4">Guardar</button>
+                                <a href="/torneos" class="btn btn-outline-secondary">Cancelar</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

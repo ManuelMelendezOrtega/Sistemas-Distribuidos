@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado Pokémon</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/zephyr/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light d-flex align-items-center vh-100">
+    <div class="container text-center">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card shadow-lg border-0" th:if="${pokemon}">
+                    <div class="card-header bg-primary text-white text-uppercase fw-bold pt-3 pb-2">
+                        <h4 th:text="${pokemon.name}"></h4>
+                    </div>
+                    <div class="card-body bg-white p-4">
+                        <img th:src="${pokemon.image}" alt="Foto Pokemon" class="img-fluid mb-3" style="width: 150px; height: 150px; image-rendering: pixelated;">
+                        <p class="fst-italic text-muted mb-4" th:text="${pokemon.description}"></p>
+                        
+                        <div class="d-flex justify-content-around text-start border-top pt-3 mt-3">
+                            <div><strong class="text-primary">Tipo:</strong> <span th:text="${pokemon.type}"></span></div>
+                            <div><strong class="text-primary">Altura:</strong> <span th:text="${pokemon.height}"></span></div>
+                            <div><strong class="text-primary">Peso:</strong> <span th:text="${pokemon.weight}"></span></div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 pb-4">
+                        <a href="/buscador" class="btn btn-outline-primary rounded-pill px-4">Volver al Buscador</a>
+                    </div>
+                </div>
+
+                <div class="alert alert-danger shadow" th:if="${error}">
+                    <h4 class="alert-heading">¡Ups! Algo salió mal</h4>
+                    <p th:text="${error}"></p>
+                    <hr>
+                    <a href="/buscador" class="btn btn-danger rounded-pill px-4">Intentar de nuevo</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
