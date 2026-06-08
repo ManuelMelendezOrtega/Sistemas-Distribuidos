@@ -9,26 +9,34 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
+/**
+ * Controlador para la gestión y administración de usuarios.
+ * Al estar bajo la ruta "/users", es un panel protegido reservado para administradores.
+ * Permite visualizar el listado completo de cuentas, modificar sus roles y eliminar usuarios del sistema.
+ */
 @Controller
-@RequestMapping("/users") // Protegido por tu SecurityConfig (/users/**)
+@RequestMapping("/users") 
 public class UserController {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
+    // Constructor que inyecta las herramientas necesarias para interactuar con las tablas de usuarios y roles de la base de datos.
     public UserController(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
     }
 
-    // Listar todos los usuarios (READ)
+    // Carga la pantalla principal del panel de administración. 
+    // Recupera todos los usuarios registrados en el sistema y los envía a la vista para mostrarlos en forma de lista o tabla.
     @GetMapping
     public String listarUsuarios(Model model) {
         model.addAttribute("usuarios", userRepository.findAll());
         return "usuarios/lista";
     }
 
-    // Mostrar formulario de edición (UPDATE - Vista)
+    // Prepara la pantalla de edición de un perfil. Busca al usuario por su ID y, si existe, lo envía al formulario.
+    // También extrae todos los roles disponibles en el sistema (ej. USER, ADMIN) para poder cargarlos en un desplegable y permitir cambiarlos.
     @GetMapping("/editar/{id}")
     public String mostrarFormularioEditar(@PathVariable Integer id, Model model) {
         Optional<User> userOpt = userRepository.findById(id);
@@ -40,25 +48,27 @@ public class UserController {
         return "redirect:/users";
     }
 
-    // Guardar cambios del usuario (UPDATE - Acción)
+    // Recibe los nuevos datos del formulario de edición y los aplica.
+    // En lugar de machacar todo el registro, primero busca al usuario original para mantener intacta su contraseña y otros datos internos.
+    // Solo actualiza el correo, el nombre mostrado y el rol antes de guardar definitivamente los cambios.
     @PostMapping("/guardar")
     public String guardarUsuario(@ModelAttribute User usuario) {
-        // Buscamos el usuario original para no perder datos como la contraseña o fecha de acceso
         Optional<User> userOriginal = userRepository.findById(usuario.getId());
         if (userOriginal.isPresent()) {
             User u = userOriginal.get();
             u.setEmail(usuario.getEmail());
             u.setNombreUsuario(usuario.getNombreUsuario());
-            u.setUserRole(usuario.getUserRole()); // Cambiar el Rol
+            u.setUserRole(usuario.getUserRole()); 
             userRepository.save(u);
         }
         return "redirect:/users";
     }
 
-    // Eliminar un usuario (DELETE)
+    // Elimina a un usuario de la base de datos a través de su ID.
+    // Comprueba el nombre de la cuenta para impedir que el usuario "admin" 
+    // pueda ser borrado accidentalmente, lo que dejaría al sistema sin ningún administrador.
     @GetMapping("/eliminar/{id}")
     public String eliminarUsuario(@PathVariable Integer id) {
-        // Evitamos que el admin se borre a sí mismo de forma accidental
         userRepository.findById(id).ifPresent(user -> {
             if (!"admin".equals(user.getUsername())) {
                 userRepository.delete(user);

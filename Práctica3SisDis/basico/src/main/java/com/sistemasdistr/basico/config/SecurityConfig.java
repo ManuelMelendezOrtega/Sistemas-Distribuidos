@@ -5,14 +5,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-// Clase de configuración de seguridad.
-// Define qué partes de la web son públicas, cuáles son privadas y cómo funciona el Login.
+// Configuración principal de seguridad (Spring Security). 
+// Define las reglas de acceso por URL, la gestión del formulario de autenticación y la encriptación de credenciales.
 @Configuration
 public class SecurityConfig {
 
@@ -22,32 +20,36 @@ public class SecurityConfig {
         this.customUserDetailsService = customUserDetailsService;
     }
 
-    // Herramienta para encriptar y verificar las contraseñas de forma segura.
     @Bean
     public PasswordEncoder passwordEncoder() {
         return org.springframework.security.crypto.factory.PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-    // Gestor principal que se encarga de procesar los intentos de inicio de sesión.
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    // Cadena de filtros que establece las reglas de acceso a las distintas rutas de la aplicación web.
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .userDetailsService(customUserDetailsService)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/").permitAll() 
+                        .requestMatchers("/", "/registro", "/login").permitAll() 
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/users/**").hasRole("ADMIN")
                         .anyRequest().authenticated() 
                 )
-                .formLogin(AbstractAuthenticationFilterConfigurer::permitAll)
-                .logout(LogoutConfigurer::permitAll);
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/torneos", true)
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/")
+                        .permitAll()
+                );
 
         return http.build();
     }

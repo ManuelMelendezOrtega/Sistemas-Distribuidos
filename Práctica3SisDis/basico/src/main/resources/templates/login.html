@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>PokeSistema - Iniciar Sesión</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/zephyr/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light d-flex align-items-center vh-100">
+
+    <div class="container text-center">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                
+                <div th:if="${param.exito}" class="alert alert-success shadow border-0 mb-4">
+                    ¡Cuenta creada con éxito! Ahora puedes iniciar sesión.
+                </div>
+
+                <div th:if="${param.error}" class="alert alert-danger shadow border-0 mb-4">
+                    Usuario o contraseña incorrectos.
+                </div>
+
+                <div th:if="${param.logout}" class="alert alert-info shadow border-0 mb-4">
+                    Has cerrado sesión correctamente.
+                </div>
+
+                <div class="card shadow-lg border-0 rounded-lg">
+                    <div class="card-header bg-primary text-white pt-3 pb-2">
+                        <h3 class="mb-0">Iniciar Sesión</h3>
+                    </div>
+                    <div class="card-body p-4 text-start">
+                        
+                        <form th:action="@{/login}" method="post">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Nombre de Usuario</label>
+                                <input type="text" class="form-control" name="username" required autofocus>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label text-muted">Contraseña</label>
+                                <input type="password" class="form-control" name="password" required>
+                            </div>
+                            
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">Entrar al Sistema</button>
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="card-footer text-center py-3 bg-white border-0">
+                        <div class="small mb-2">¿No tienes cuenta? <a href="/registro">¡Regístrate aquí!</a></div>
+                        <div class="small"><a href="/" class="text-muted text-decoration-none">Volver al inicio</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

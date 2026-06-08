@@ -8,6 +8,8 @@ import lombok.Setter;
 
 import java.io.Serializable;
 
+// Modelo que representa el boleto de inscripción de un usuario en un torneo.
+// Conecta quién participa, en qué torneo y guarda una instancia de los 6 Pokémon exactos con los que se apuntó.
 @Entity
 @Getter
 @Setter
@@ -28,7 +30,6 @@ public class Inscripcion implements Serializable {
     @JoinColumn(name = "torneo_id", nullable = false)
     private Torneo torneo;
 
-    // Los 6 Pokémon del equipo elegido
     @Column(length = 50) private String pokemon1;
     @Column(length = 50) private String pokemon2;
     @Column(length = 50) private String pokemon3;

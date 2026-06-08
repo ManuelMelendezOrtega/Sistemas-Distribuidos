@@ -10,7 +10,7 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
         <div class="container">
-            <a class="navbar-brand" href="/buscador"><i class="bi bi-vinyl-fill"></i> PokeSistema</a>
+            <a class="navbar-brand" href="/torneos"><i class="bi bi-vinyl-fill"></i> PokeSistema</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -24,6 +24,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/torneos">Torneos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/equipos">Mis Equipos</a>
                     </li>
                 </ul>
                 <form th:action="@{/logout}" method="post" class="d-flex">

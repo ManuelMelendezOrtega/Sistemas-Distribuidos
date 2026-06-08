@@ -10,6 +10,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+// Modelo que representa los torneos disponibles en la aplicación.
+// Guarda los detalles del evento, incluyendo su fecha exacta y las coordenadas geográficas para su ubicación.
 @Entity
 @Getter
 @Setter
@@ -34,7 +36,6 @@ public class Torneo implements Serializable {
     @Column(nullable = false)
     private Double longitud;
 
-    // NUEVO CAMPO: Fecha del torneo
     @Column(name = "fecha")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate fecha;

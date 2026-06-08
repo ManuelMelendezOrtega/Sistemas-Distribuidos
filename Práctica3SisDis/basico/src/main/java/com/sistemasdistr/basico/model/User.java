@@ -8,7 +8,8 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 // Modelo de entidad de base de datos.
-// Representa la estructura de la tabla 'user' dentro de nuestra base de datos MySQL.
+// Representa la estructura de la tabla 'user' dentro de nuestra base de datos MySQL 
+// y mapea las relaciones con sus respectivos roles.
 @Entity
 @Getter
 @Setter
